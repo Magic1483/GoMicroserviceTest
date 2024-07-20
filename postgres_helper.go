@@ -13,10 +13,11 @@ type datascore struct {
 }
 
 type Message struct {
-	Id 			int
-	Text 		string
-	IsChecked	bool
+	Id 			int		`json:"Id"`
+	Text 		string	`json:"Text"`
+	IsChecked	bool	`json:"IsChecked"`
 }
+
 
 
 
@@ -31,10 +32,26 @@ func CreateTable(db *sql.DB)  {
 	}
 }
 
-func (d *datascore) InsertMessage(text string) error  {
+func (d *datascore) InsertMessage(text string) int  {
+	var id int
+	exec := fmt.Sprintf("INSERT INTO messages (text,isChecked) VALUES ('%s',false) RETURNING id;",text)
+	row := d.db.QueryRow(exec)
+	row.Scan(&id)
+	fmt.Println(id)
+	return id
+}
 
-	exec := fmt.Sprintf("INSERT INTO messages (text,isChecked) VALUES ('%s',false);",text)
+func (d *datascore) DeleteMessages() error  {
+	_,err := d.db.Exec("DELETE FROM messages;")
+	return err
+}
+
+func (d *datascore) UpdateMessage(m *Message) error  {
+	exec := fmt.Sprintf("UPDATE messages SET ischecked = true WHERE id = %d;",m.Id)
 	_,err := d.db.Exec(exec)
+	if err != nil {
+		panic(err)
+	}
 	return err
 }
 
@@ -72,7 +89,7 @@ func (s *server) setupDB() {
 	config,_ := toml.LoadFile("conf.toml")
 	pg_pass := config.Get("postgres_pass").(string)
 
-	connStr := "user=postgres password="+pg_pass+" dbname=db sslmode=disable host=db"
+	connStr := "user=postgres password="+pg_pass+" dbname=db sslmode=disable host=localhost port=5432"
 	db,err := sql.Open("postgres",connStr)
 
 	if err != nil {

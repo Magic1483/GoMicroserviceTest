@@ -1,30 +1,39 @@
-version: '4'
-
 services:
   db:
     build: ./postgres
     restart: always
     ports:
-      - "5432"
+      - "5432:5432"
     networks:
       - default
 
-  # kafka:
-  #   image: apache/kafka:3.7.1
-  #   ports:
-  #     - "9092"
+  kafka:
+    image: apache/kafka:3.7.1
+    ports:
+      - "9092:9092"
+    networks:
+      - default
 
   go-backend:
     restart: always
     depends_on:
+      - kafka
       - db
     build: .
     ports:
       - "8000:8000"
     networks:
       - default
-
-
+  
+  go-msg-handler:
+    restart: always
+    build: ./msg_handler
+    depends_on:
+      - go-backend
+    networks:
+      - default
+    
+    
 networks:
   default:
     driver: bridge

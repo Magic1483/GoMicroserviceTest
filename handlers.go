@@ -5,6 +5,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -19,6 +20,13 @@ func (s *server) HelpHandler() httprouter.Handle {
 	}
 }
 
+func (s *server) DeleteHandler() httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		s.db.DeleteMessages()
+		fmt.Fprint(w,"Delete all messages")		
+	}
+}
+
 func (s *server) Handle_insert() httprouter.Handle  {
 	type Req struct {
 		Text string
@@ -26,6 +34,8 @@ func (s *server) Handle_insert() httprouter.Handle  {
 	
 	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		var req Req
+		var m Message
+
 		decoder := json.NewDecoder(r.Body)
 		err := decoder.Decode(&req)
 		if err != nil {
@@ -35,11 +45,18 @@ func (s *server) Handle_insert() httprouter.Handle  {
 		fmt.Println(req)
 		
 		if req.Text != "" {
-			err = s.db.InsertMessage(req.Text)
+			last_id := s.db.InsertMessage(req.Text)
+			m = Message{Id: last_id ,Text: req.Text,IsChecked: false}
+
+			
+			fmt.Fprintf(w,"record inserted with id "+string(last_id))
+			text,err := json.Marshal(m)
+
 			if err != nil {
-				panic(err)
+				log.Fatal("can't convert message to JSON",err.Error())
+			} else {
+				s.ProduceMsg(text,string(last_id)) // send msg -->> msg handler
 			}
-			fmt.Fprintf(w,"record inserted")
 		} else {
 			fmt.Fprintf(w,"text is empty")
 		}
