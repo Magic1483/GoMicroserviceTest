@@ -3,7 +3,6 @@ FROM debian
 
 WORKDIR /msgHandlerDir
 
-# COPY ../test/kafka kafka
 
 COPY msgHandler msgHandler
 

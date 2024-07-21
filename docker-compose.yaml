@@ -1,3 +1,6 @@
+#  kafka host fix
+# https://github.com/Java-Techie-jt/kafka-installation/blob/main/docker-compose.yml
+
 services:
   db:
     build: ./postgres
