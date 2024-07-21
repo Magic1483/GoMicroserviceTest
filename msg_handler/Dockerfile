@@ -3,6 +3,8 @@ FROM debian
 
 WORKDIR /msgHandlerDir
 
+# COPY ../test/kafka kafka
+
 COPY msgHandler msgHandler
 
 RUN apt update -y && apt upgrade -y && apt install iproute2 iputils-ping postgresql-client -y

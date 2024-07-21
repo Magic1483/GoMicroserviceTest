@@ -48,8 +48,8 @@ func (s *server) Handle_insert() httprouter.Handle  {
 			last_id := s.db.InsertMessage(req.Text)
 			m = Message{Id: last_id ,Text: req.Text,IsChecked: false}
 
-			
-			fmt.Fprintf(w,"record inserted with id "+string(last_id))
+			answer := fmt.Sprintf("record inserted with id %d",last_id)
+			fmt.Fprintf(w,answer)
 			text,err := json.Marshal(m)
 
 			if err != nil {

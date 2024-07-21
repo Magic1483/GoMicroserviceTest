@@ -89,7 +89,7 @@ func (s *server) setupDB() {
 	config,_ := toml.LoadFile("conf.toml")
 	pg_pass := config.Get("postgres_pass").(string)
 
-	connStr := "user=postgres password="+pg_pass+" dbname=db sslmode=disable host=localhost port=5432"
+	connStr := "user=postgres password="+pg_pass+" dbname=db sslmode=disable host=db port=5432"
 	db,err := sql.Open("postgres",connStr)
 
 	if err != nil {

@@ -3,6 +3,7 @@ FROM debian
 
 WORKDIR /microServiceDir
 
+COPY test/kafka kafka
 COPY conf.toml conf.toml
 COPY microService microService
 
